@@ -1,18 +1,48 @@
+
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+// Konfigurasi pin sensor MQ-7
+const int PIN_SENSOR_CO = 34;
+
+// Batas awal untuk pengujian logika.
+// Ini hanya nilai simulasi ADC, bukan ppm CO terkalibrasi.
+const int BATAS_WASPADA = 1500;
+const int BATAS_BAHAYA = 2500;
+
+int bacaSensorCO() {
+  return analogRead(PIN_SENSOR_CO);
+}
+
+String tentukanStatus(int nilai) {
+  if (nilai >= BATAS_BAHAYA) {
+    return "BAHAYA";
+  } else if (nilai >= BATAS_WASPADA) {
+    return "WASPADA";
+  }
+
+  return "AMAN";
+}
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+  analogReadResolution(12);
+
+  Serial.println();
+  Serial.println("=== Smart Car Safety System ===");
+  Serial.println("Monitoring sensor MQ-7 dimulai");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+  int nilaiCO = bacaSensorCO();
+  String status = tentukanStatus(nilaiCO);
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  Serial.print("[INPUT] Nilai ADC = ");
+  Serial.println(nilaiCO);
+
+  Serial.print("[STATUS] ");
+  Serial.println(status);
+
+  Serial.println("------------------------");
+
+  delay(1000);
 }
